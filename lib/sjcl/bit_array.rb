@@ -1,4 +1,6 @@
 module SJCL::BitArray
+  MASK32 = (1 << 31)
+
   def self.bitSlice(a, bstart, bend=0)
     a = shiftRight(a.slice(bstart/32,a.length-bstart/32), 32 - (bstart & 31)).slice(1,1)
     bend == 0 ? a : clamp(a, bend-bstart)
@@ -67,5 +69,44 @@ module SJCL::BitArray
     shift2 = getPartial(last2)
     out.push(partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1))
     return out;
+  end
+
+  def self.convertToSigned32(arr)
+    out = []
+    for n in arr
+      n = n & 0xFFFFFFFF if n > 0xFFFFFFF
+      if n > MASK32
+        n = (n & ~MASK32) - (n & MASK32)
+        out.push n
+      else
+        out.push n
+      end
+    end
+    out
+  end
+
+  def self.convertToUnsigned32(arr)
+    out = []
+    for n in arr
+      if n < 0
+        out << (n & MASK32) + 0xFFFFFFFF
+      else
+        out << (n & MASK32)
+      end
+    end
+    out
+  end
+
+  # Compare two SJCL type BitArrays
+  def self.compare(arr1, arr2)
+    return false if arr1.length != arr2.length
+    arr1 = convertToSigned32(arr1)
+    arr2 = convertToSigned32(arr2)
+    (arr1.length- 1).times do |i|
+      return false if arr1[i] != arr2[i]
+    end
+    # The last word is a funky use of a double
+    return false if arr2[arr2.length - 1] != arr1[arr1.length - 1]
+    return true
   end
 end
