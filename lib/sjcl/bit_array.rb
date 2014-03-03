@@ -1,5 +1,5 @@
 module SJCL::BitArray
-  MASK32 = (1 << 31)
+  SMASK32 = (1 << 31) # Signed 32 mask
 
   def self.bitSlice(a, bstart, bend=0)
     a = shiftRight(a.slice(bstart/32,a.length-bstart/32), 32 - (bstart & 31)).slice(1,1)
@@ -32,23 +32,42 @@ module SJCL::BitArray
     a = a.slice(0, (len / 32.0).ceil);
     l = a.length;
     len = len & 31;
-    if (l > 0 && len)
+    if (l > 0 && len > 0)
       a[l-1] = partial(len, (a[l-1] >> (len-1)), 1);
     end
     a
   end
 
-  def self.partial(len, x, _end=false)
-    return x if len == 32
-    if _end
-      x|0
+  def self.concat(a1, a2)
+    return a1.concat(a2) if (a1.length === 0 || a2.length === 0)
+    last = a1[a1.length-1]
+    shift = getPartial(last)
+    if (shift === 32)
+      return a1.concat(a2)
     else
-      (x << 32-len) + len * 0x10000000000
+      return shiftRight(a2, shift, last & 0xFFFFFFFF, a1.slice(0,a1.length-1))
+    end
+  end
+
+  def self.partial(len, x, _end=0)
+    return x if len == 32
+    if _end == 1
+      part = x|0
+    else
+      part = x << 32-len
+    end
+    part &= 0xFFFFFFFF # Force to 32 bits
+    # Nasty due to JS defaulting to signed 32
+    if part > 0x7FFFFFFF
+      part - 0xFFFFFFFF - 1 + len * 0x10000000000
+    else
+      part + len * 0x10000000000
     end
   end
 
   def self.getPartial(x)
-    ((x/0x10000000000) || 32).round
+    bits = x/0x10000000000
+    return bits > 0 ? bits : 32
   end
 
   def self.shiftRight(a, shift, carry=0, out=[])
@@ -62,21 +81,25 @@ module SJCL::BitArray
       return out.concat(a)
     end
     a.length.times do |i|
-      out.push(carry | a[i]>>shift)
-      carry = a[i] << (32-shift)
+      out.push(carry | (a[i] & 0xFFFFFFFF)>>shift)
+      carry = (a[i] << (32-shift) & 0xFFFFFFFF)
     end
-    last2 = a.length ? a[a.length-1] : 0
+    last2 = a.length > 0 ? a[a.length-1] : 0
     shift2 = getPartial(last2)
-    out.push(partial(shift+shift2 & 31, (shift + shift2 > 32) ? carry : out.pop(),1))
+    out.push(partial((shift+shift2) & 31, (shift + shift2 > 32) ? carry : out.pop(),1))
     return out;
+  end
+
+  def self.xor4(x,y)
+    [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]]
   end
 
   def self.convertToSigned32(arr)
     out = []
     for n in arr
       n = n & 0xFFFFFFFF if n > 0xFFFFFFF
-      if n > MASK32
-        n = (n & ~MASK32) - (n & MASK32)
+      if n > SMASK32
+        n = (n & ~SMASK32) - (n & SMASK32)
         out.push n
       else
         out.push n
@@ -85,19 +108,17 @@ module SJCL::BitArray
     out
   end
 
+  # caveat: clears out of band data
   def self.convertToUnsigned32(arr)
     out = []
     for n in arr
-      if n < 0
-        out << (n & MASK32) + 0xFFFFFFFF
-      else
-        out << (n & MASK32)
-      end
+      out.push(n & 0xFFFFFFFF)
     end
     out
   end
 
   # Compare two SJCL type BitArrays
+  # caveat: ignore out of band data
   def self.compare(arr1, arr2)
     return false if arr1.length != arr2.length
     arr1 = convertToSigned32(arr1)
