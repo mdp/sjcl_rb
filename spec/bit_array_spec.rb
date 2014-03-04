@@ -24,6 +24,12 @@ describe "the SJCL BitArray" do
     clamped = SJCL::BitArray.clamp([2010473763, 1926277526, 2720643473, 3225629324], 128)
     SJCL::BitArray.compare(clamped, [2010473763, 1926277526, 2720643473, 3225629324])
   end
+  it "should bitslice" do
+    sliced = SJCL::BitArray.bitSlice([2010473763, 1926277526, 2720643473, 3225629324], 0, 64)
+    SJCL::BitArray.compare(sliced, [2010473763, 1926277526])
+    sliced = SJCL::BitArray.bitSlice([1830956770, 3659299964, 4136255234, 2601935920], 0, 64)
+    SJCL::BitArray.compare(sliced, [1830956770, 3659299964])
+  end
   it "should concat two bit arrays" do
     conc = SJCL::BitArray.concat([8798223728640],[-1505830413, 1352435907])
     SJCL::BitArray.compare(conc, [2141601497, -212820856, 8795069612032])

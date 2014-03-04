@@ -2,7 +2,7 @@ module SJCL::BitArray
   SMASK32 = (1 << 31) # Signed 32 mask
 
   def self.bitSlice(a, bstart, bend=0)
-    a = shiftRight(a.slice(bstart/32,a.length-bstart/32), 32 - (bstart & 31)).slice(1,1)
+    a = shiftRight(a.slice(bstart/32,a.length-bstart/32), 32 - (bstart & 31)).slice(1,a.length-2)
     bend == 0 ? a : clamp(a, bend-bstart)
   end
 
@@ -91,7 +91,27 @@ module SJCL::BitArray
   end
 
   def self.xor4(x,y)
-    [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]]
+    if x.length < 4 || y.length < 4
+      x = zero_array(x, 4)
+      y = zero_array(y, 4)
+    end
+    mask32 [x[0]^y[0],x[1]^y[1],x[2]^y[2],x[3]^y[3]]
+  end
+
+  def self.mask32(arr)
+    out = []
+    for a in arr
+      out << (a & 0xFFFFFFFF)
+    end
+    out
+  end
+
+  def self.zero_array(arr, amount)
+    amount.times do |i|
+      arr[i] ||= 0
+    end
+    p arr
+    arr
   end
 
   def self.convertToSigned32(arr)
