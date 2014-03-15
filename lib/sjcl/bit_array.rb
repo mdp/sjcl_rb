@@ -1,8 +1,9 @@
 module SJCL::BitArray
   SMASK32 = (1 << 31) # Signed 32 mask
 
-  def self.bitSlice(a, bstart, bend=0)
-    a = shiftRight(a.slice(bstart/32,a.length-bstart/32), 32 - (bstart & 31)).slice(1,a.length-2)
+  def self.bitSlice(arr, bstart, bend=0)
+    a = arr.dup
+    a = shiftRight(a.slice(bstart/32,a.length), 32 - (bstart & 31)).slice(1,a.length-1)
     bend == 0 ? a : clamp(a, bend-bstart)
   end
 
@@ -27,25 +28,26 @@ module SJCL::BitArray
     return (l-1) * 32 + getPartial(x);
   end
 
-  def self.clamp(a, len)
+  def self.clamp(arr, len)
+    a = arr.dup
     return a if (a.length * 32) < len
     a = a.slice(0, (len / 32.0).ceil);
     l = a.length;
     len = len & 31;
     if (l > 0 && len > 0)
-      a[l-1] = partial(len, (a[l-1] >> (len-1)), 1);
+      a[l-1] = partial(len, a[l-1] & -(0x80000000 >> (len-1)), 1);
     end
     a
   end
 
   def self.concat(a1, a2)
-    return a1.concat(a2) if (a1.length === 0 || a2.length === 0)
+    return a1 + a2 if (a1.length === 0 || a2.length === 0)
     last = a1[a1.length-1]
     shift = getPartial(last)
     if (shift === 32)
-      return a1.concat(a2)
+      return a1 + a2
     else
-      return shiftRight(a2, shift, last & 0xFFFFFFFF, a1.slice(0,a1.length-1))
+      return shiftRight(a2, shift, last, a1.slice(0,a1.length-1))
     end
   end
 
@@ -66,11 +68,12 @@ module SJCL::BitArray
   end
 
   def self.getPartial(x)
-    bits = x/0x10000000000
+    bits = (x.to_f/0x10000000000).round
     return bits > 0 ? bits : 32
   end
 
   def self.shiftRight(a, shift, carry=0, out=[])
+    out = out.dup
     last2 = 0
     while shift >= 32
       out.push(carry)
@@ -107,10 +110,10 @@ module SJCL::BitArray
   end
 
   def self.zero_array(arr, amount)
+    out = []
     amount.times do |i|
-      arr[i] ||= 0
+      out[i] = arr[i] || 0
     end
-    p arr
     arr
   end
 
