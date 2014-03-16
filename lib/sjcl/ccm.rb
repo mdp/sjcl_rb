@@ -20,7 +20,35 @@ module SJCL::Mode
       SJCL::BitArray.concat(out[:data], out[:tag])
     end
 
-    def self.decrypt(prf, ciphertext, iv, adata, tlen)
+    def self.decrypt(prf, ciphertext, iv, adata=[], tlen=64)
+      ccml = 2
+      ivl = SJCL::BitArray.bitLength(iv) / 8
+      ol = SJCL::BitArray.bitLength(ciphertext)
+      out = SJCL::BitArray.clamp(ciphertext, ol - tlen)
+      tag = SJCL::BitArray.bitSlice(ciphertext, ol - tlen)
+
+      ol = (ol - tlen) / 8;
+      raise "ccm: iv must be at least 7 bytes" if (ivl < 7)
+
+      # compute the length of the length
+      while ccml < 4 && ((ol & 0xFFFFFFFF) >> 8*ccml > 0)
+        ccml += 1
+      end
+
+      if (ccml < 15 - ivl)
+        ccml = 15-ivl
+      end
+      iv = SJCL::BitArray.clamp(iv,8*(15-ccml))
+
+      # decrypt
+      out = ctrMode(prf, out, iv, tag, tlen, ccml)
+
+      # check the tag
+      tag2 = computeTag(prf, out[:data], iv, adata, tlen, ccml)
+      if (!SJCL::BitArray.compare(out[:tag], tag2))
+        raise "ccm: tag doesn't match"
+      end
+      return out[:data]
     end
 
     def self.computeTag(prf, plaintext, iv, adata, tlen, l)

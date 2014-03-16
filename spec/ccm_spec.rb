@@ -24,4 +24,11 @@ describe "CCM Mode" do
       SJCL::BitArray.compare(enc, expected).should eql(true)
     end
   end
+  describe "decrypting" do
+    it "should match SJCL encryption with adata" do
+      enc = SJCL::Mode::CCM.encrypt(cipher, plaintext, iv, adata)
+      dec = SJCL::Mode::CCM.decrypt(cipher, enc, iv, adata)
+      SJCL::BitArray.compare(dec, plaintext).should eql(true)
+    end
+  end
 end
