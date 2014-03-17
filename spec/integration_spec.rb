@@ -16,7 +16,9 @@ describe "the SJCL aes crypto" do
   end
 
   it "should encrypt text for SJCL.js" do
-    result = SJCL.encrypt('s33krit', "This is a secret")
+    plaintext = "Raw denim fanny pack gastropub, cardigan irony biodiesel pop-up. 3 wolf moon Godard sartorial authentic fingerstache, lo-fi Etsy aesthetic. Fixie 3 wolf moon photo booth, mustache cliche sustainable artisan. Fingerstache chillwave ethnic distillery Tonx. Farm-to-table ethnic paleo keytar. Fanny pack chambray quinoa, mlkshk you probably haven't heard of them letterpress fashion axe. Literally Pinterest Schlitz, typewriter ennui sustainable ugh hella kitsch."
+    result = SJCL.encrypt('s33krit', plaintext)
+    SJCL.decrypt('s33krit', result).should eql(plaintext)
     puts "sjcl.decrypt('s33krit','#{result}')"
     # Checking this by hand for now :(
   end
