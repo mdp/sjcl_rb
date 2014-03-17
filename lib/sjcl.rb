@@ -8,7 +8,6 @@ require 'sjcl/pbkdf2'
 require 'sjcl/random'
 require 'json'
 require 'base64'
-require 'pbkdf2'
 
 module SJCL
 
