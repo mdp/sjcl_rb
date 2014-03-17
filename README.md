@@ -1,4 +1,5 @@
 ## SJCL_rb
+[![Build Status](https://secure.travis-ci.org/mdp/sjcl_rb.png)](http://travis-ci.org/mdp/sjcl_rb)
 
 A Ruby gem to interop with SJCL in AES-CCM mode.
 
@@ -22,6 +23,5 @@ close approximation of SJCL in terms of code and organization.
 ### TODO
 
 - More modes
-- Travis
 - Test interop with node module directly
 - Test more scenarios
