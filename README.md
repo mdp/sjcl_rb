@@ -3,7 +3,7 @@
 
 A Ruby gem to interop with SJCL in AES-CCM mode.
 
-Defaults to 256 bit AES in CCM mode with 10_000 iteration PBKDF2
+Defaults to 256 bit AES in CCM mode with 100_000 iterations PBKDF2
 
 ### Install
 
@@ -14,14 +14,18 @@ gem install sjcl
     enc = SJCL.encrypt('password', "Something to encrypt")
     dec = SJCL.decrypt('password', enc)
 
-### Dev Notes
+    # Custom number of PBKDF2 iterations
+    enc = SJCL.encrypt('password', "Something to encrypt", {:iter => 10_000})
 
-This is a very naive implementation of SJCL's AES library in ruby.
-It's not been optimized for performance and instead tries to be a very
-close approximation of SJCL in terms of code and organization.
+### Usage
+
+    dec = SJCL.decrypt('password', enc)
+
+### Dev Goals
+
+- Should be 100% compatible with SJCL Javascript library in AES-CCM mode
+- Should not be dependent upon OpenSSL having been compiles with AES-CCM-256 support (May be slower)
 
 ### TODO
 
-- More modes
 - Test interop with node module directly
-- Test more scenarios
