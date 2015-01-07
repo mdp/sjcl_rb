@@ -28,4 +28,19 @@ describe "the SJCL aes crypto" do
     puts "sjcl.decrypt('s33krit','#{result}')"
     # Checking this by hand for now :(
   end
+
+  it "should fail to decrypt tampered with adata tag" do
+    json = '{"iv":"+Y+RZjk81MN9wkLVRgfLkA==","v":1,"iter":10000,"ks":256,"ts":64,"mode":"ccm","adata":"Tampered","cipher":"aes","salt":"4TD5tILYe6U=","ct":"NUeGvbXWVEmssnSGORpVSl1OefdLHjU2yPZnxVsPifyD1TJ3+w=="}'
+    expect {
+      SJCL.decrypt('s33krit', json)
+    }.to raise_error SJCL::Mode::CCM::TagAuthError
+  end
+
+  it "should fail to decrypt tampered with crypts" do
+    json = '{"iv":"+Y+RZjk81MN9wkLVRgfLkA==","v":1,"iter":10000,"ks":256,"ts":64,"mode":"ccm","adata":"","cipher":"aes","salt":"4TD5tILYe6U=","ct":"NUeGvbXWVEmssnSGORpVSl1OefdLHjU2yPZnxVsPifyD1tJ3+w=="}'
+    expect {
+      SJCL.decrypt('s33krit', json)
+    }.to raise_error SJCL::Mode::CCM::TagAuthError
+  end
+
 end

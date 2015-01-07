@@ -1,5 +1,8 @@
 module SJCL::Mode
   module CCM
+    class TagAuthError < ::StandardError; end
+    class Error < ::StandardError; end
+
     NAME = "ccm"
 
     def self.encrypt(prf, plaintext, iv, adata=[], tlen=64)
@@ -7,7 +10,7 @@ module SJCL::Mode
       out = plaintext.dup
       ivl = SJCL::BitArray.bitLength(iv) / 8
       ol = SJCL::BitArray.bitLength(out) / 8
-      raise "ccm: IV must be at least 7 bytes" if ivl < 7
+      raise Error, "ccm: IV must be at least 7 bytes" if ivl < 7
       while ccml < 4 && ((ol & 0xFFFFFFFF) >> 8*ccml > 0)
         ccml += 1
       end
@@ -28,7 +31,7 @@ module SJCL::Mode
       tag = SJCL::BitArray.bitSlice(ciphertext, ol - tlen)
 
       ol = (ol - tlen) / 8;
-      raise "ccm: iv must be at least 7 bytes" if (ivl < 7)
+      raise Error, "ccm: iv must be at least 7 bytes" if (ivl < 7)
 
       # compute the length of the length
       while ccml < 4 && ((ol & 0xFFFFFFFF) >> 8*ccml > 0)
@@ -46,7 +49,7 @@ module SJCL::Mode
       # check the tag
       tag2 = computeTag(prf, out[:data], iv, adata, tlen, ccml)
       if (!SJCL::BitArray.compare(out[:tag], tag2))
-        raise "ccm: tag doesn't match"
+        raise TagAuthError, "ccm: tag doesn't match"
       end
       return out[:data]
     end
@@ -54,7 +57,7 @@ module SJCL::Mode
     def self.computeTag(prf, plaintext, iv, adata, tlen, l)
       tlen /= 8
       if (tlen % 2 != 0 || tlen < 4 || tlen > 16)
-        raise "ccm: invalid tag length"
+        raise Error, "ccm: invalid tag length"
       end
 
       # mac the flags

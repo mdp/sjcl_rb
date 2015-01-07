@@ -12,7 +12,7 @@ require 'base64'
 module SJCL
 
   DEFAULT = {
-    iter:100_000, ks:256, ts:64,
+    v:1, iter:100_000, ks:256, ts:64,
     mode:"ccm", adata:"", cipher:"aes"
   }
 
