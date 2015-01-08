@@ -32,6 +32,11 @@ gem install sjcl
 
 ### Changelog
 
+- 1.0.1
+  - Match comparison fucntion from SJCL js
+  - Include SJCL version in JSON
+  - Better errors thrown
+  - Update docs
 - 1.0.0
   - Update to use OpenSSL PBKDF2 function for increased speed
   - Increase default iterations to 100,000
