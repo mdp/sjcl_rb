@@ -141,16 +141,15 @@ module SJCL::BitArray
   end
 
   # Compare two SJCL type BitArrays
-  # caveat: ignore out of band data
+  # in a predictable amount of time
   def self.compare(arr1, arr2)
+    x = 0
     return false if arr1.length != arr2.length
     arr1 = convertToSigned32(arr1)
     arr2 = convertToSigned32(arr2)
-    (arr1.length- 1).times do |i|
-      return false if arr1[i] != arr2[i]
+    (arr1.length).times do |i|
+      x = arr1[i] ^ arr2[i]
     end
-    # The last word is a funky use of a double
-    return false if arr2[arr2.length - 1] != arr1[arr1.length - 1]
-    return true
+    return (x == 0)
   end
 end
