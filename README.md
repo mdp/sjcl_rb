@@ -5,10 +5,6 @@ A demonstration of SJCL AES-CCM in pure Ruby. Not supported now that [Gibberish]
 
 Defaults to 256 bit AES in CCM mode with 100_000 iterations PBKDF2
 
-### Install
-
-gem install sjcl
-
 ### Usage
 
     enc = SJCL.encrypt('password', "Something to encrypt")
