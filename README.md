@@ -1,7 +1,7 @@
 ## SJCL_rb
 [![Build Status](https://secure.travis-ci.org/mdp/sjcl_rb.png)](http://travis-ci.org/mdp/sjcl_rb)
 
-A Ruby gem to interop with SJCL in AES-CCM mode.
+A demonstration of SJCL AES-CCM in pure Ruby. Not supported now that [Gibberish](https://github.com/mdp/gibberish) is compatible with SJCL.
 
 Defaults to 256 bit AES in CCM mode with 100_000 iterations PBKDF2
 
@@ -24,7 +24,7 @@ gem install sjcl
 ### Dev Goals
 
 - Should be 100% compatible with SJCL Javascript library in AES-CCM mode
-- Should not be dependent upon OpenSSL having been compiles with AES-CCM-256 support (May be slower)
+- Written in pure ruby
 
 ### TODO
 
