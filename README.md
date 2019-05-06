@@ -1,7 +1,11 @@
+## Modern Crypto
+
+Note: It's 2019 and if you're looking for a modern and actively maintained Ruby encryption library you should do yourself a favor and check out [RbNaCl](https://github.com/crypto-rb/rbnacl), which is based on [LibSodium](https://github.com/jedisct1/libsodium). The code below was designed purely for demonstration purposes and should not be used in applications where serious crypto is needed.
+
 ## SJCL_rb
 [![Build Status](https://secure.travis-ci.org/mdp/sjcl_rb.png)](http://travis-ci.org/mdp/sjcl_rb)
 
-A demonstration of SJCL AES-CCM in pure Ruby. Not supported now that [Gibberish](https://github.com/mdp/gibberish) is compatible with SJCL.
+A demonstration of SJCL AES-CCM in pure Ruby.
 
 Defaults to 256 bit AES in CCM mode with 100_000 iterations PBKDF2
 
